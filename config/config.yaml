@@ -1,0 +1,30 @@
+port: 5001
+# selecteddb: "postgressql"
+database:
+  sql:
+    driver: "postgressql"
+    address: "localhost"
+    port: 5432
+    username: "postgres"
+    password: "admin"
+    name: "boilerplate-golang"
+  nosql:
+    driver: "couchdb"
+    address: "localhost"
+    port:
+    username: "admin"
+    password: "admin"
+    name: ""
+cache:
+  driver: "redis"
+  address: "127.0.0.1"
+  port: 6379
+  password: ""
+  dbnumber: 1
+endpoint:
+  auth: ""
+  commodities: ""
+  convert_currency: ""
+  ffmsdb: ""
+token:
+  ffmsdb: ""
