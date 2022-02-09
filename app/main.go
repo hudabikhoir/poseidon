@@ -7,6 +7,7 @@ import (
 	"boilerplate-golang-v2/util"
 	"context"
 	"fmt"
+	stdLog "log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,7 +17,20 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
+var banner = `
+
+██████╗  ██████╗ ███████╗███████╗██╗██████╗  ██████╗ ███╗   ██╗
+██╔══██╗██╔═══██╗██╔════╝██╔════╝██║██╔══██╗██╔═══██╗████╗  ██║
+██████╔╝██║   ██║███████╗█████╗  ██║██║  ██║██║   ██║██╔██╗ ██║
+██╔═══╝ ██║   ██║╚════██║██╔══╝  ██║██║  ██║██║   ██║██║╚██╗██║
+██║     ╚██████╔╝███████║███████╗██║██████╔╝╚██████╔╝██║ ╚████║
+╚═╝      ╚═════╝ ╚══════╝╚══════╝╚═╝╚═════╝  ╚═════╝ ╚═╝  ╚═══╝
+v1.0.0-alpha                                                        
+`
+
 func main() {
+	stdLog.Println(banner)
+
 	//load config if available or set to default
 	config := config.GetConfig()
 
@@ -28,7 +42,7 @@ func main() {
 
 	//create echo http
 	e := echo.New()
-
+	e.HideBanner = true
 	// index route
 	e.GET("/", func(c echo.Context) error {
 		message := `Aku Ingin
@@ -50,8 +64,7 @@ awan kepada hujan yang menjadikannya tiada
 
 	// run server
 	go func() {
-		address := fmt.Sprintf("localhost:%d", config.Port)
-
+		address := fmt.Sprintf("localhost:%d", config.App.Port)
 		if err := e.Start(address); err != nil {
 			log.Info("shutting down the server")
 		}
