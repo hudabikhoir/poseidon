@@ -9,42 +9,26 @@ import (
 
 //AppConfig Application configuration
 type AppConfig struct {
-	Port       int    `yaml:"port"`
-	SelectedDB string `yaml:"selecteddb"`
-	Database   struct {
-		SQL struct {
-			Driver   string `yaml:"driver"`
-			Name     string `yaml:"name"`
-			Address  string `yaml:"address"`
-			Port     int    `yaml:"port"`
-			Username string `yaml:"username"`
-			Password string `yaml:"password"`
-		} `yaml:"sql"`
-		NOSQL struct {
-			Driver   string `yaml:"driver"`
-			Name     string `yaml:"name"`
-			Address  string `yaml:"address"`
-			Port     int    `yaml:"port"`
-			Username string `yaml:"username"`
-			Password string `yaml:"password"`
-		} `yaml:"nosql"`
-	} `yaml:"database"`
+	App struct {
+		Name string `toml:"name"`
+		Env  string `toml:"env"`
+		Port int    `toml:"port"`
+	} `toml:"app"`
+	Database struct {
+		Driver   string `toml:"driver"`
+		Address  string `toml:"address"`
+		Port     int    `toml:"port"`
+		Username string `toml:"username"`
+		Password string `toml:"password"`
+		Name     string `toml:"name"`
+	} `toml:"database"`
 	Cache struct {
-		Driver   string `yaml:"driver"`
-		Address  string `yaml:"address"`
-		Port     int    `yaml:"port"`
-		Password string `yaml:"password"`
-		DBNumber int    `yaml:"dbnumber"`
-	}
-	Endpoint struct {
-		Auth            string `yaml:"auth"`
-		Commodities     string `yaml:"commodities"`
-		ConvertCurrency string `yaml:"convertcurrency"`
-		FFMSDB          string `yaml:"ffmsdb"`
-	}
-	Token struct {
-		FFMSDB string `yaml:"ffmsdb"`
-	}
+		Driver   string `toml:"driver"`
+		Address  string `toml:"address"`
+		Port     int    `toml:"port"`
+		Password string `toml:"password"`
+		Dbnumber int    `toml:"dbnumber"`
+	} `toml:"cache"`
 }
 
 var lock = &sync.Mutex{}
@@ -63,43 +47,37 @@ func GetConfig() *AppConfig {
 }
 
 func initConfig() *AppConfig {
-	var defaultConfig AppConfig
-	defaultConfig.Port = 5001
-	defaultConfig.SelectedDB = "postgress"
-	defaultConfig.Database.SQL.Driver = "sqlite"
-	defaultConfig.Database.SQL.Name = "insanulab-test"
-	defaultConfig.Database.SQL.Address = ""
-	defaultConfig.Database.SQL.Port = 3306
-	defaultConfig.Database.SQL.Username = ""
-	defaultConfig.Database.SQL.Password = ""
+	// var defaultConfig AppConfig
+	// defaultConfig.App.Port = 5001
+	// defaultConfig.App.Name = "poseidon"
+	// defaultConfig.App.Env = "local"
 
-	defaultConfig.Database.NOSQL.Driver = "sqlite"
-	defaultConfig.Database.NOSQL.Name = "insanulab-test"
-	defaultConfig.Database.NOSQL.Address = ""
-	defaultConfig.Database.NOSQL.Port = 3306
-	defaultConfig.Database.NOSQL.Username = ""
-	defaultConfig.Database.NOSQL.Password = ""
+	// defaultConfig.Database.Driver = "sqlite"
+	// defaultConfig.Database.Name = "insanulab-test"
+	// defaultConfig.Database.Address = ""
+	// defaultConfig.Database.Port = 3306
+	// defaultConfig.Database.Username = ""
+	// defaultConfig.Database.Password = ""
 
-	defaultConfig.Cache.Driver = "redis"
-	defaultConfig.Cache.Address = "localhost"
-	defaultConfig.Cache.Port = 6379
-	defaultConfig.Cache.DBNumber = 1
-	defaultConfig.Cache.Password = ""
+	// defaultConfig.Cache.Driver = "redis"
+	// defaultConfig.Cache.Address = "localhost"
+	// defaultConfig.Cache.Port = 6379
+	// defaultConfig.Cache.Password = ""
 
-	viper.SetConfigType("yaml")
+	viper.SetConfigType("toml")
 	viper.SetConfigName("config")
 	viper.AddConfigPath("./config/")
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Info("error to load config file, will use default value ", err)
-		return &defaultConfig
+		// return &defaultConfig
 	}
 
 	var finalConfig AppConfig
 	err := viper.Unmarshal(&finalConfig)
 	if err != nil {
 		log.Info("failed to extract config, will use default value ")
-		return &defaultConfig
+		// return &defaultConfig
 	}
 
 	return &finalConfig

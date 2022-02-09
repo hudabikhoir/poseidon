@@ -1,0 +1,19 @@
+[app]
+name = "poseidon"
+env = "local"
+port = 5001
+
+[database]
+driver = ""
+address = ""
+port = 
+username = ""
+password = ""
+name = ""
+
+[cache]
+driver = ""
+address = ""
+port = 
+password = ""
+dbnumber = 1
