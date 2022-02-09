@@ -57,29 +57,24 @@ type DatabaseConnection struct {
 func NewDatabaseConnection(config *config.AppConfig) *DatabaseConnection {
 	var db DatabaseConnection
 	//define the data repository
-	fmt.Println("config.Database.SQL.Driver:", config.Database.SQL.Driver)
-	if config.Database.SQL.Driver == "mysql" {
+	if config.Database.Driver == "mysql" {
 		//initiate mysql db repository
 		db.MySQLDB = newMysqlDB(config)
 		db.Driver = MySQL
-	} else if config.Database.SQL.Driver == "sqlite" {
+	} else if config.Database.Driver == "sqlite" {
 		//initiate mysqlite db repository
 		db.MySQLDB = newSQLiteDBClient(config)
 		db.Driver = MySQL
-	} else if config.Database.SQL.Driver == "postgressql" {
+	} else if config.Database.Driver == "postgressql" {
 		//initiate postgreSQL db repository
 		db.PostgreSQL = newPostgreSQL(config)
 		db.Driver = PostgreSQL
-	} else {
-		panic("Unsupported sql database driver")
-	}
-
-	if config.Database.NOSQL.Driver == "mongodb" {
+	} else if config.Database.Driver == "mongodb" {
 		// initiate mongodb repository
 		db.mongoClient = newMongoDBClient(config)
-		db.MongoDB = db.mongoClient.Database(config.Database.NOSQL.Name)
+		db.MongoDB = db.mongoClient.Database(config.Database.Name)
 		db.Driver = MongoDB
-	} else if config.Database.NOSQL.Driver == "couchdb" {
+	} else if config.Database.Driver == "couchdb" {
 		//initiate mysql db repository
 		db.CouchDBClient = newCouchDBClient(config)
 		db.Driver = CouchDB
@@ -105,11 +100,11 @@ func newMysqlDB(config *config.AppConfig) *sql.DB {
 	var uri string
 
 	uri = fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=true",
-		config.Database.SQL.Username,
-		config.Database.SQL.Password,
-		config.Database.SQL.Address,
-		config.Database.SQL.Port,
-		config.Database.SQL.Name)
+		config.Database.Username,
+		config.Database.Password,
+		config.Database.Address,
+		config.Database.Port,
+		config.Database.Name)
 
 	db, err := sql.Open("mysql", uri)
 	if err != nil {
@@ -130,7 +125,7 @@ func newMysqlDB(config *config.AppConfig) *sql.DB {
 }
 
 func newSQLiteDBClient(config *config.AppConfig) *sql.DB {
-	db := fmt.Sprintf("../%v", config.Database.SQL.Name)
+	db := fmt.Sprintf("../%v", config.Database.Name)
 	sqliteDatabase, _ := sql.Open("sqlite3", db) // Open the created SQLite File
 	return sqliteDatabase
 }
@@ -138,14 +133,14 @@ func newSQLiteDBClient(config *config.AppConfig) *sql.DB {
 func newMongoDBClient(config *config.AppConfig) *mongo.Client {
 	uri := "mongodb://"
 
-	if config.Database.NOSQL.Username != "" {
-		uri = fmt.Sprintf("%s%v:%v@", uri, config.Database.NOSQL.Username, config.Database.NOSQL.Password)
+	if config.Database.Username != "" {
+		uri = fmt.Sprintf("%s%v:%v@", uri, config.Database.Username, config.Database.Password)
 	}
 
 	uri = fmt.Sprintf("%s%v:%v",
 		uri,
-		config.Database.NOSQL.Address,
-		config.Database.NOSQL.Port)
+		config.Database.Address,
+		config.Database.Port)
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(uri))
 	if err != nil {
@@ -168,9 +163,9 @@ func newMongoDBClient(config *config.AppConfig) *mongo.Client {
 func newCouchDBClient(config *config.AppConfig) *kivik.Client {
 	client, err := kivik.New("couch", fmt.Sprintf(
 		"https://%s:%s@%s/",
-		config.Database.NOSQL.Username,
-		config.Database.NOSQL.Password,
-		config.Database.NOSQL.Address,
+		config.Database.Username,
+		config.Database.Password,
+		config.Database.Address,
 	))
 	if err != nil {
 		panic(err)
@@ -182,14 +177,12 @@ func newCouchDBClient(config *config.AppConfig) *kivik.Client {
 // newPostgreSQL return a client connection handle to a Postgre server.
 func newPostgreSQL(config *config.AppConfig) *sql.DB {
 	var uri string
-	fmt.Println("driver postgres")
 	uri = fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable",
-		config.Database.SQL.Username,
-		config.Database.SQL.Password,
-		config.Database.SQL.Address,
-		config.Database.SQL.Port,
-		config.Database.SQL.Name)
-	fmt.Println("uri", uri)
+		config.Database.Username,
+		config.Database.Password,
+		config.Database.Address,
+		config.Database.Port,
+		config.Database.Name)
 	client, err := sql.Open("postgres", uri)
 	if err != nil {
 		log.Info("failed to connect database: ", err)
@@ -205,6 +198,5 @@ func newPostgreSQL(config *config.AppConfig) *sql.DB {
 		panic(err)
 	}
 
-	fmt.Println("client driver:", client)
 	return client
 }

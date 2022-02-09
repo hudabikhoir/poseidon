@@ -19,8 +19,6 @@ type MySQLRepository struct {
 
 //NewMySQLRepository Generate mongo DB content repository
 func NewMySQLRepository(db *sql.DB) *MySQLRepository {
-	fmt.Println("NewMySQLRepository")
-	fmt.Println("NewMySQLRepository db:", db)
 	return &MySQLRepository{
 		db,
 	}
