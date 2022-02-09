@@ -63,6 +63,12 @@ In general, Poseidon is divided into 3 major parts, namely primary (driving adap
 
 ## How To Run Server
 
+### Prerequisite
+- Install `reflex` to enable file watcher for hot reload.
+   ```console
+   $ go get github.com/cespare/reflex
+   ```
+
 Just execute code below in your console
 
 ```console
