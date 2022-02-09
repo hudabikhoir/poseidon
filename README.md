@@ -64,15 +64,23 @@ In general, Poseidon is divided into 3 major parts, namely primary (driving adap
 ## How To Run Server
 
 ### Prerequisite
+
 - Install `reflex` to enable file watcher for hot reload.
-   ```console
-   $ go get github.com/cespare/reflex
-   ```
+  ```console
+  $ go get github.com/cespare/reflex
+  ```
+- Copy config.toml.example to config.toml
+  ```console
+  $ cp config/config.toml.example config/config.toml
+  ```
+- adjust your environment configuration in config/config.toml file
+
+### Run Server
 
 Just execute code below in your console
 
 ```console
-./run.sh
+$ ./run.sh
 ```
 
 ## How To Consume The API
