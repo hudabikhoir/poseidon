@@ -3,7 +3,8 @@ package content
 import (
 	"context"
 	"database/sql"
-	"fmt"
+	"log"
+	"strconv"
 	"strings"
 
 	_ "github.com/lib/pq"
@@ -28,14 +29,14 @@ func NewMySQLRepository(db *sql.DB) *MySQLRepository {
 func (repo *MySQLRepository) FindContentByID(ID string) (*content.Content, error) {
 	var content content.Content
 
-	selectQuery := `SELECT id, name, description, created_at, created_by, modified_at, modified_by, version, COALESCE(tags, "")
-		FROM content i
-		LEFT JOIN (
-			SELECT content_id, 
-			GROUP_CONCAT(tag) as tags
-			FROM content_tag GROUP BY content_id
+	selectQuery := `SELECT id, name, description, created_at, created_by, modified_at, modified_by, version, COALESCE(tags, '')
+	FROM content i
+	LEFT JOIN (
+		SELECT content_id, 
+		string_agg(tag, ',') as tags
+		FROM content_tag GROUP BY content_id
 		)AS it ON i.id = it.content_id
-		WHERE i.id = ?`
+		WHERE i.id = $1`
 
 	var tags string
 	err := repo.db.
@@ -62,17 +63,17 @@ func (repo *MySQLRepository) FindContentByID(ID string) (*content.Content, error
 //FindAllByTag Find all contents based on given tag. Its return empty array if not found
 func (repo *MySQLRepository) FindAllByTag(tag string) ([]content.Content, error) {
 	//TODO: if feel have a performance issue in tag grouping, move the logic from db to here
-	selectQuery := `SELECT id, name, description, created_at, created_by, modified_at, modified_by, version, COALESCE(tags, "")
+	selectQuery := `SELECT id, name, COALESCE(description, '') as description, created_at, created_by, modified_at, modified_by, version, COALESCE(tags, '')
 		FROM content i
 		LEFT JOIN (
 			SELECT content_id, 
-			GROUP_CONCAT(tag) as tags
+			string_agg(tag, ',') as tags
 			FROM content_tag GROUP BY content_id
 		)AS it ON i.id = it.content_id
 		WHERE i.id IN (
 			SELECT content_id
 			FROM content_tag
-			WHERE tag = ?	
+			WHERE tag = $1	
 		)`
 
 	row, err := repo.db.Query(selectQuery, tag)
@@ -110,54 +111,60 @@ func (repo *MySQLRepository) FindAllByTag(tag string) ([]content.Content, error)
 }
 
 //InsertContent Insert new content into database. Its return content id if success
-func (repo *MySQLRepository) InsertContent(content content.Content) error {
-	fmt.Println("masuk repository")
+func (repo *MySQLRepository) InsertContent(content content.Content) (ID string, err error) {
+	var contentID int
 	ctx := context.Background()
-	fmt.Println("repo db:", repo.db)
+
 	tx, err := repo.db.BeginTx(ctx, nil)
-	fmt.Println("err repo:", err)
+
 	if err != nil {
-		return err
+		return ID, err
 	}
 
-	contentQuery := fmt.Sprintf(`INSERT INTO content (name, description, created_at, created_by, modified_at, modified_by, version) VALUES ('%v', '%v', NOW(), '%v', NOW(), '%v', '%v')`,
-		content.Name,
+	contentQuery := `INSERT INTO content (name, description, created_at, created_by, modified_at, modified_by, version) VALUES ($1, $2, NOW(), $3, NOW(), $4, $5) RETURNING id`
+
+	stmt, err := tx.Prepare(contentQuery)
+
+	if err != nil {
+		log.Fatal(err)
+		return ID, err
+	}
+
+	err = stmt.QueryRow(content.Name,
 		content.Description,
 		content.CreatedBy,
 		content.ModifiedBy,
-		content.Version)
+		content.Version).Scan(&contentID)
 
-	fmt.Println("contentQuery:", contentQuery)
 	if err != nil {
-		return err
+		return ID, err
 	}
-
-	_, err = tx.Exec(contentQuery)
 
 	if err != nil {
 		tx.Rollback()
-		return err
+		return ID, err
 	}
 
-	tagQuery := `INSERT INTO content_tag (id, content_id, tag) VALUES (1, 2, 'kesehatan')`
+	ID = strconv.Itoa(contentID)
+	tagQuery := `INSERT INTO content_tag (content_id, tag) VALUES ($1, $2)`
 
-	// for _, tag := range content.Tags {
-	_, err = tx.Exec(tagQuery)
-	// _, err = tx.Exec(tagQuery, content.ID, tag)
+	for _, tag := range content.Tags {
+		// _, err = tx.Exec(tagQuery)
+		_, err = tx.Exec(tagQuery, contentID, tag)
 
-	if err != nil {
-		tx.Rollback()
-		return err
+		if err != nil {
+			tx.Rollback()
+			return ID, err
+		}
 	}
-	// }
 
 	err = tx.Commit()
 
 	if err != nil {
-		return err
+		return ID, err
 	}
 
-	return nil
+	return ID, err
 }
 
 //UpdateContent Update existing content in database
@@ -169,17 +176,16 @@ func (repo *MySQLRepository) UpdateContent(content content.Content, currentVersi
 
 	contentInsertQuery := `UPDATE content 
 		SET
-			name = ?,
-			description = ?,
-			modified_at = ?,
-			modified_by = ?,
-			version = ?
-		WHERE id = ? AND version = ?`
+			name = $1,
+			description = $2,
+			modified_at = NOW(),
+			modified_by = $3,
+			version = $4
+		WHERE id = $5 AND version = $6`
 
 	res, err := tx.Exec(contentInsertQuery,
 		content.Name,
 		content.Description,
-		content.ModifiedAt,
 		content.ModifiedBy,
 		content.Version,
 		content.ID,
@@ -205,7 +211,7 @@ func (repo *MySQLRepository) UpdateContent(content content.Content, currentVersi
 
 	//TODO: maybe better if we only delete the record that we need to delete
 	//add logic slice to find which deleted and which want to added
-	tagDeleteQuery := "DELETE FROM content_tag WHERE content_id = ?"
+	tagDeleteQuery := "DELETE FROM content_tag WHERE content_id = $1"
 	_, err = tx.Exec(tagDeleteQuery, content.ID)
 
 	if err != nil {
@@ -213,7 +219,7 @@ func (repo *MySQLRepository) UpdateContent(content content.Content, currentVersi
 		return err
 	}
 
-	tagUpsertQuery := "INSERT INTO content_tag (content_id, tag) VALUES (?, ?)"
+	tagUpsertQuery := "INSERT INTO content_tag (content_id, tag) VALUES ($1, $2)"
 
 	for _, tag := range content.Tags {
 		_, err = tx.Exec(tagUpsertQuery, content.ID, tag)
