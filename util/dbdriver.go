@@ -57,28 +57,29 @@ type DatabaseConnection struct {
 func NewDatabaseConnection(config *config.AppConfig) *DatabaseConnection {
 	var db DatabaseConnection
 	//define the data repository
-	if config.Database.Driver == "mysql" {
+	switch config.Database.Driver {
+	case "mysql":
 		//initiate mysql db repository
 		db.MySQLDB = newMysqlDB(config)
 		db.Driver = MySQL
-	} else if config.Database.Driver == "sqlite" {
+	case "sqlite":
 		//initiate mysqlite db repository
 		db.MySQLDB = newSQLiteDBClient(config)
 		db.Driver = MySQL
-	} else if config.Database.Driver == "postgressql" {
+	case "postgressql":
 		//initiate postgreSQL db repository
 		db.PostgreSQL = newPostgreSQL(config)
 		db.Driver = PostgreSQL
-	} else if config.Database.Driver == "mongodb" {
+	case "mongodb":
 		// initiate mongodb repository
 		db.mongoClient = newMongoDBClient(config)
 		db.MongoDB = db.mongoClient.Database(config.Database.Name)
 		db.Driver = MongoDB
-	} else if config.Database.Driver == "couchdb" {
+	case "couchdb":
 		//initiate mysql db repository
 		db.CouchDBClient = newCouchDBClient(config)
 		db.Driver = CouchDB
-	} else {
+	default:
 		panic("Unsupported nosql database driver")
 	}
 
