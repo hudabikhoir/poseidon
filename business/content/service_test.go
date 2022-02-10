@@ -5,7 +5,6 @@ import (
 	"boilerplate-golang-v2/business/content"
 	"boilerplate-golang-v2/business/content/spec"
 	"errors"
-	"fmt"
 	"os"
 	"reflect"
 	"testing"
@@ -390,16 +389,15 @@ func (repo *inMemoryRepository) FindAllByTag(tag string) ([]content.Content, err
 	contents, ok := repo.contentByTag[tag]
 
 	if !ok {
-		fmt.Println("tag not found")
 		return contents, nil
 	}
 
 	return contents, nil
 }
 
-func (repo *inMemoryRepository) InsertContent(content content.Content) error {
+func (repo *inMemoryRepository) InsertContent(content content.Content) (string, error) {
 	if content.Name == errorSpec.Name {
-		return errorInsert
+		return "", errorInsert
 	}
 
 	repo.contentByID[content.ID] = content
@@ -408,7 +406,7 @@ func (repo *inMemoryRepository) InsertContent(content content.Content) error {
 		contents := repo.contentByTag[tag]
 		repo.contentByTag[tag] = append(contents, content)
 	}
-	return nil
+	return content.ID, nil
 }
 
 func (repo *inMemoryRepository) UpdateContent(content content.Content, currentVersion int) error {
