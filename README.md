@@ -92,4 +92,4 @@ There are 4 availables API that ready to use:
 - POST `/v1/contents`
 - PUT `/v1/contents`
 
-To make it easier please download [Insomnia Core](https://insomnia.rest) app and import [this collection](https://raw.githubusercontent.com/muhsinshodiq/golang-sample-api/master/insomnia.json).
+To make it easier please download [Postman](https://www.postman.com/) app and import [this collection](https://raw.githubusercontent.com/hudabikhoir/poseidon/master/boilerplate-golang-v2.postman_collection.json).

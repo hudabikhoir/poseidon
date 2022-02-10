@@ -1,0 +1,113 @@
+{
+	"info": {
+		"_postman_id": "7f23e211-5a5a-4018-af6a-41f4d9f7d694",
+		"name": "boilerplate-golang-v2",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "content",
+			"item": [
+				{
+					"name": "add new content",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"judul 1\",\n    \"description\": \"desc 1\",\n    \"tags\": [\"kesehatan\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/v1/contents",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"contents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update content",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"ganti judul 1\",\n    \"description\": \"desc 1\",\n    \"tags\": [\"kesehatan\"],\n    \"version\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/v1/contents/1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"contents",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get content by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/v1/contents/1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"contents",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all content ",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/v1/contents/tag?tag=kesehatan",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"contents",
+								"tag"
+							],
+							"query": [
+								{
+									"key": "tag",
+									"value": "kesehatan"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
