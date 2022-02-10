@@ -1,5 +1,9 @@
 ![Poseidon](poseidon-logo.png)
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=hudabikhoir_poseidon&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=hudabikhoir_poseidon)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=hudabikhoir_poseidon&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=hudabikhoir_poseidon)
+[![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)](https://github.com/Naereen/badges/)
+
 # POSEIDON
 
 POSEIDON is a sample REST API build using echo server.
@@ -93,3 +97,9 @@ There are 4 availables API that ready to use:
 - PUT `/v1/contents`
 
 To make it easier please download [Postman](https://www.postman.com/) app and import [this collection](https://raw.githubusercontent.com/hudabikhoir/poseidon/master/boilerplate-golang-v2.postman_collection.json).
+
+Thank for contributting to this repository. Feel free to contribute this repo, guys :)
+
+<a href = "https://github.com/hudabikhoir/poseidon/graphs/contributors">
+<img src = "https://contrib.rocks/image?repo=hudabikhoir/poseidon"/>
+</a>
