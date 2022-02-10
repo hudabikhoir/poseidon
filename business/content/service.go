@@ -3,7 +3,6 @@ package content
 import (
 	"boilerplate-golang-v2/business"
 	"boilerplate-golang-v2/business/content/spec"
-	"fmt"
 	"time"
 
 	validator "github.com/go-playground/validator/v10"
@@ -12,27 +11,27 @@ import (
 //Repository ingoing port for content
 type Repository interface {
 	//FindContentByID If data not found will return nil without error
-	FindContentByID(ID string) (*Content, error)
+	FindContentByID(ID string) (content *Content, err error)
 
 	//FindAllByTag If no data match with the given tag, will return empty slice instead of nil
-	FindAllByTag(tag string) ([]Content, error)
+	FindAllByTag(tag string) (contents []Content, err error)
 
 	//InsertContent Insert new content into storage
-	InsertContent(content Content) error
+	InsertContent(content Content) (id string, err error)
 
 	//UpdateContent if data not found will return core.ErrZeroAffected
-	UpdateContent(content Content, currentVersion int) error
+	UpdateContent(content Content, currentVersion int) (err error)
 }
 
 //Service outgoing port for content
 type Service interface {
-	GetContentByID(ID string) (*Content, error)
+	GetContentByID(ID string) (content *Content, err error)
 
-	GetContentsByTag(tag string) ([]Content, error)
+	GetContentsByTag(tag string) (contents []Content, err error)
 
-	CreateContent(upsertcontentSpec spec.UpsertContentSpec, createdBy string) (string, error)
+	CreateContent(upsertcontentSpec spec.UpsertContentSpec, createdBy string) (id string, err error)
 
-	UpdateContent(ID string, upsertcontentSpec spec.UpsertContentSpec, currentVersion int, modifiedBy string) error
+	UpdateContent(ID string, upsertcontentSpec spec.UpsertContentSpec, currentVersion int, modifiedBy string) (err error)
 }
 
 //=============== The implementation of those interface put below =======================
@@ -57,7 +56,6 @@ func (s *service) GetContentByID(ID string) (*Content, error) {
 
 //GetContentsByTag Get all contents by given tag, return zero array if not match
 func (s *service) GetContentsByTag(tag string) ([]Content, error) {
-
 	contents, err := s.repository.FindAllByTag(tag)
 	if err != nil || contents == nil {
 		return []Content{}, err
@@ -68,16 +66,12 @@ func (s *service) GetContentsByTag(tag string) ([]Content, error) {
 
 //CreateContent Create new content and store into database
 func (s *service) CreateContent(upsertcontentSpec spec.UpsertContentSpec, createdBy string) (string, error) {
-	fmt.Println("masuk service")
 	err := s.validate.Struct(upsertcontentSpec)
-	fmt.Println("err upsert:", err)
 
 	if err != nil {
 		return "", business.ErrInvalidSpec
 	}
 
-	// ID := util.GenerateID()
-	// fmt.Println("ID:", ID)
 	content := NewContent(
 		upsertcontentSpec.Name,
 		upsertcontentSpec.Description,
@@ -85,14 +79,12 @@ func (s *service) CreateContent(upsertcontentSpec spec.UpsertContentSpec, create
 		createdBy,
 		time.Now(),
 	)
-	fmt.Println("content: ", content)
-	err = s.repository.InsertContent(content)
-	fmt.Println("err repo: ", err)
+	ID, err := s.repository.InsertContent(content)
 	if err != nil {
 		return "", err
 	}
 
-	return "1", nil
+	return ID, nil
 }
 
 //UpdateContent Update existing content in the database.
