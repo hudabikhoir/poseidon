@@ -6,7 +6,6 @@ import (
 	"boilerplate-golang-v2/api/v1/content/response"
 	"boilerplate-golang-v2/business"
 	contentBusiness "boilerplate-golang-v2/business/content"
-	"fmt"
 	"net/http"
 
 	v10 "github.com/go-playground/validator/v10"
@@ -44,7 +43,7 @@ func (controller *Controller) GetContentByID(c echo.Context) error {
 
 //FindContentByTag Find content by tag echo handler
 func (controller *Controller) FindContentByTag(c echo.Context) error {
-	tag := c.Param("tag")
+	tag := c.QueryParam("tag")
 	contents, err := controller.service.GetContentsByTag(tag)
 
 	if err != nil {
@@ -58,14 +57,11 @@ func (controller *Controller) FindContentByTag(c echo.Context) error {
 //CreateNewContent Create new content echo handler
 func (controller *Controller) CreateNewContent(c echo.Context) error {
 	createContentRequest := new(request.CreateContentRequest)
-	fmt.Println("masuk controller")
 	if err := c.Bind(createContentRequest); err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 	}
 
 	ID, err := controller.service.CreateContent(*createContentRequest.ToUpsertContentSpec(), "creator")
-	fmt.Println("err:", err)
 
 	if err != nil {
 		if err == business.ErrInvalidSpec {

@@ -15,9 +15,9 @@ type Controller struct {
 func RegisterPath(e *echo.Echo, ctrl Controller) {
 	//content
 	contentV1 := e.Group("v1/contents")
-	contentV1.GET("/", ctrl.ContentController.FindContentByTag)
+	// contentV1.GET("/:tag", ctrl.ContentController.FindContentByTag)
 	contentV1.GET("/:id", ctrl.ContentController.GetContentByID)
-	contentV1.GET("/tag/:tag", ctrl.ContentController.FindContentByTag)
+	contentV1.GET("/tag", ctrl.ContentController.FindContentByTag)
 	contentV1.POST("", ctrl.ContentController.CreateNewContent)
 	contentV1.PUT("/:id", ctrl.ContentController.UpdateContent)
 
