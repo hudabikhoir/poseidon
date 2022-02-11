@@ -97,9 +97,3 @@ There are 4 availables API that ready to use:
 - PUT `/v1/contents`
 
 To make it easier please download [Postman](https://www.postman.com/) app and import [this collection](https://raw.githubusercontent.com/hudabikhoir/poseidon/master/boilerplate-golang-v2.postman_collection.json).
-
-Thank for contributting to this repository. Feel free to contribute this repo, guys :)
-
-<a href = "https://github.com/hudabikhoir/poseidon/graphs/contributors">
-<img src = "https://contrib.rocks/image?repo=hudabikhoir/poseidon"/>
-</a>
