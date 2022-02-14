@@ -96,4 +96,13 @@ There are 4 availables API that ready to use:
 - POST `/v1/contents`
 - PUT `/v1/contents`
 
+## How to release POSEIDON
+
+We use goreleaser to automate release POSEIDON. Execute code below in your console
+
+```console
+$ git tag -a v0.1.0 -m "First release"
+$ git push origin v0.1.0
+```
+
 To make it easier please download [Postman](https://www.postman.com/) app and import [this collection](https://raw.githubusercontent.com/hudabikhoir/poseidon/master/boilerplate-golang-v2.postman_collection.json).
