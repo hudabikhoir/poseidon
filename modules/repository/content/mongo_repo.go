@@ -2,6 +2,7 @@ package content
 
 import (
 	"boilerplate-golang-v2/business/content"
+	"boilerplate-golang-v2/util"
 	"context"
 	"time"
 
@@ -29,7 +30,13 @@ type collection struct {
 }
 
 func newCollection(content content.Content) (*collection, error) {
-	objectID, err := primitive.ObjectIDFromHex(content.ID)
+	var UIDString string
+	if content.ID != "" {
+		UIDString = content.ID
+	} else {
+		UIDString = util.GenerateID()
+	}
+	objectID, err := primitive.ObjectIDFromHex(UIDString)
 
 	if err != nil {
 		return nil, err
@@ -126,20 +133,20 @@ func (repo *MongoDBRepository) FindAllByTag(tag string) ([]content.Content, erro
 }
 
 //InsertContent Insert new content into database. Its return content id if success
-func (repo *MongoDBRepository) InsertContent(content content.Content) error {
+func (repo *MongoDBRepository) InsertContent(content content.Content) (ID string, err error) {
 	col, err := newCollection(content)
 
 	if err != nil {
-		return err
+		return "0", err
 	}
 
 	_, err = repo.col.InsertOne(context.TODO(), col)
 
 	if err != nil {
-		return err
+		return "0", err
 	}
 
-	return nil
+	return col.ID.Hex(), nil
 }
 
 //UpdateContent Update existing content in database
